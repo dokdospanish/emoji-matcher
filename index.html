@@ -1,435 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitor, feedback and verify</title>
 <style>
-
-html {
-  box-sizing: border-box;
-}
-*, *:before, *:after {
-  box-sizing: inherit;
-}
-
-/* LAYOUT */
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: whitesmoke;
+    body {
         padding: 20px;
-      }
+    }
 
-      header {
-        font-size: large;
+    #menus {
         display: flex;
         align-items: center;
-      }
-          #req-details-div {
+    }
+        #menu-left{
             flex: 1 0;
-          }
-          #nav-div{
+        }
+        #menu-right{
             flex: 0 0 auto;
-          }
+        }
 
-      main {
+    main {
+        display: flex;
+        height: 90vh;
         margin: 20px 0 0 0;
-        height: 50vh;
-        display: flex;
-      }
-          #areaSrc, #areaTar {
-            flex: 1;
-            overflow-y: auto;
-            font: inherit;
-            resize: none;
-            justify-content: space-between;
-            padding: 10px 15px;
-            background-color: white;
-            border: solid 3px black;
-          }
-          #areaSrc {
-            margin:0 5px 0 0;
-          }
-          #areaTar {
-            margin:0 0 0 5px;
-          }
-      footer {
-        display: flex;
-        height: 50vh;
-      }
-          section {
-            flex: 1;
-            margin: 10px 0 0 10px;
-          }
-            h2 {
-              margin: -7px -1px;
+    }
+        textarea {
+                flex: 1;
+                overflow-y: auto;
+                font: inherit;
+                resize: none;
+                padding: 10px 15px;
+                background-color: white;
+                border: solid 3px black;
             }
-            ol{
-              margin-left:-24px;
+            #userContent {
+                margin:0 10px 0 0;
+            }
+            span {
+                font-size: 200%;
+                align-self: center;
+            }
+            #processedOutput{
+                margin:0 0 0 10px;
             }
 
-          #flitto-api-demo {
-            flex: 1;
-            margin: 10px 0;
-            height: 50vh;
-          }
-
-
-/*NAVIGATION*/
-      .navButton {
-        border:0;
-        background-color: rgb(153, 84, 153);
-        color: whitesmoke;
-        font-size: large;
-        height: 40px;
-        width: 40px;
-      }
-      .navButton:hover {
-        background-color: purple;
-        cursor: pointer;
-      }
-
-
-/*ANNOTATOR POPUP*/
-      #annotatorPopup {
-        position:absolute;
-        display:none;
-        border:solid gray 3px;
-        border-radius: 3px; 
-        background-color:lightgray;
-        color:white;
-        padding:10px;
-        font-size:20px;
-        font-weight:bold;
-        -webkit-filter: drop-shadow(0 1px 10px rgba(113,158,206,0.8));
-        filter: drop-shadow(0 1px 10px rgba(113,158,206,0.8));
-        }
-        #popupText {
-        min-height:60px;
-        }
-
-/*TOOLTIP POPUP*/
-      #tooltipPopup {
-        position:absolute;
-        display:none;
-        max-width: 240px;
-        background-color:rgba(37, 37, 37, 0.774);
-        color:white;
-        padding:5px;
-        font-size:80%;
-        -webkit-filter: drop-shadow(0 1px 10px rgba(113,158,206,0.8));
-        filter: drop-shadow(0 1px 10px rgba(113,158,206,0.8));
-        }
-
-
-
-/*CHECK BUTTONS*/
-        .ck-button {
-            font-size: x-small;
-            color:black;
-            background-color:#EFEFEF;
-            border:1px solid #D0D0D0;
-            border-radius:40px;
-            overflow:auto;
-            float:left;
-        }
-        .ck-button:hover {
-            background:rgb(255, 63, 63);
-        }
-        .ck-button label {
-            float:left;
-            width:4.0em;
-        }
-        .ck-button label span {
-            text-align:center;
-            padding:3px 0px;
-            display:block;
-        }
-        .ck-button label input {
-            position:absolute;
-            top:-1000px;/*Out of sight*/
-        }
-        .ck-button input:checked + span {
-            background-color:rgb(209, 49, 49);
-            color:#fff;
-        }
-
-/*HIGHLIGHTER*/
-        .highlighted {
-          position: relative;
-          border-left: rgba(209, 188, 0, 1) solid 1px;
-          border-right: rgba(209, 188, 0, 1) solid 1px;
-          background-color: rgba(235, 231, 3, 0.2);
-          /* background-color: rgba(241, 200, 15, 0.2); */
-        }
-
-        .highlighted > .highlighted{
-            background-color: rgba(87, 214, 3, 0.15);
-        }
-
-        .highlighted  > :nth-of-type(odd){
-            background-color:  rgba(3, 184, 33, 0.15);
-        }
-
-    </style>
+</style>
 </head>
 <body>
-  <header>
-    <div id="req-details-div">
-      <a href="https://a.flit.to:4435/admin#/admin/req_tr?req_id=11057449" id="reqId">11057449</a>
-      <span id="participant">Gyumin</span>
-      <span id="participant-history">(All: 10, 90.0%)</span>
-    </div>
-    <div id="nav-div">
-      <button class="navButton" id="prevButton" onclick="myFunction()">◀️</button>
-      <button class="navButton" id="nextButton" onclick="myFunction()">▶️</button>
-      <button class="navButton" id="saveButton" onclick="myFunction()">💾</button>
-    </div>
-  </header>
-  <main>
-    <div id="areaSrc" contenteditable="false">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
-    <br/><br/>
-    Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-    </div>
-    <div id="areaTar" spellcheck="true">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis <span class="highlighted" title=
-      "typo">Excusándose</span> praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.
-    <br/><br/>
-    Whisky bueno: ¡excitad mi frágil pequeña vejez! El cadáver de Wamba, rey godo de España, fue exhumado y trasladado en una caja de zinc que pesó un kilo
-    </div>
-    
 
-  </main>
-  <div id="annotatorPopup">
-    <textarea id='popupText'></textarea>
-    <br>
-    <div class="ck-button">
-      <label><input type="checkbox" value="1" tabindex="-1"><span>오타</span></label>
+<div id="menus">
+<div id="menu-left">
+<input type="file" id="filePicker" multiple>
+</div>
+<div id="menu-right">
+    <button onclick="clearAreas()">Clear</button>
+    <button onclick="copyOutput()">Copy</button>
+    <button onclick="saveOutput()">Download</button>
     </div>
-    <div class="ck-button">
-      <label><input type="checkbox" value="1" tabindex="-1"><span>오역</span></label>
-     </div>
-    <div class="ck-button">
-     <label><input type="checkbox" value="1" tabindex="-1"><span>문법</span></label>
-    </div>
-    <br>
-    <button id="applyButton">Apply</button>
-  </div>
-  <div id="tooltipPopup"></div>
-  <footer>
-    <embed id="flitto-api-demo" src="https://api-demo.flit.to:2222/index.html">
-    <section>
-      <h2>Summary</h2>
-      <ol id="listOfAnnotations"></ol>
-    </section>
-  </footer>
+</div>
+
+<main>
+<textarea readonly id="userContent"></textarea>
+<span>🢂</span>
+<textarea readonly id="processedOutput"></textarea>
+</main>
+
 </body>
 <script>
-
-//Global counter for annotation serialization
-let serial = 0;
-let userSelection;
-
-//Create highlighter span class once for later use
-let highlightSpan = document.createElement('span');
-    highlightSpan.className = "highlighted";
-    /* highlightSpan.contentEditable = "true"; */
-
-//CLASSES//
-
-class Revision {
-  constructor(){
-    this.annotations =[];
-  }
-}
+const rx = /(?:🧑🏻‍❤️‍💋‍🧑🏼|🧑🏻‍❤️‍💋‍🧑🏽|🧑🏻‍❤️‍💋‍🧑🏾|🧑🏻‍❤️‍💋‍🧑🏿|🧑🏼‍❤️‍💋‍🧑🏻|🧑🏼‍❤️‍💋‍🧑🏽|🧑🏼‍❤️‍💋‍🧑🏾|🧑🏼‍❤️‍💋‍🧑🏿|🧑🏽‍❤️‍💋‍🧑🏻|🧑🏽‍❤️‍💋‍🧑🏼|🧑🏽‍❤️‍💋‍🧑🏾|🧑🏽‍❤️‍💋‍🧑🏿|🧑🏾‍❤️‍💋‍🧑🏻|🧑🏾‍❤️‍💋‍🧑🏼|🧑🏾‍❤️‍💋‍🧑🏽|🧑🏾‍❤️‍💋‍🧑🏿|🧑🏿‍❤️‍💋‍🧑🏻|🧑🏿‍❤️‍💋‍🧑🏼|🧑🏿‍❤️‍💋‍🧑🏽|🧑🏿‍❤️‍💋‍🧑🏾|👩🏻‍❤️‍💋‍👨🏻|👩🏻‍❤️‍💋‍👨🏼|👩🏻‍❤️‍💋‍👨🏽|👩🏻‍❤️‍💋‍👨🏾|👩🏻‍❤️‍💋‍👨🏿|👩🏼‍❤️‍💋‍👨🏻|👩🏼‍❤️‍💋‍👨🏼|👩🏼‍❤️‍💋‍👨🏽|👩🏼‍❤️‍💋‍👨🏾|👩🏼‍❤️‍💋‍👨🏿|👩🏽‍❤️‍💋‍👨🏻|👩🏽‍❤️‍💋‍👨🏼|👩🏽‍❤️‍💋‍👨🏽|👩🏽‍❤️‍💋‍👨🏾|👩🏽‍❤️‍💋‍👨🏿|👩🏾‍❤️‍💋‍👨🏻|👩🏾‍❤️‍💋‍👨🏼|👩🏾‍❤️‍💋‍👨🏽|👩🏾‍❤️‍💋‍👨🏾|👩🏾‍❤️‍💋‍👨🏿|👩🏿‍❤️‍💋‍👨🏻|👩🏿‍❤️‍💋‍👨🏼|👩🏿‍❤️‍💋‍👨🏽|👩🏿‍❤️‍💋‍👨🏾|👩🏿‍❤️‍💋‍👨🏿|👨🏻‍❤️‍💋‍👨🏻|👨🏻‍❤️‍💋‍👨🏼|👨🏻‍❤️‍💋‍👨🏽|👨🏻‍❤️‍💋‍👨🏾|👨🏻‍❤️‍💋‍👨🏿|👨🏼‍❤️‍💋‍👨🏻|👨🏼‍❤️‍💋‍👨🏼|👨🏼‍❤️‍💋‍👨🏽|👨🏼‍❤️‍💋‍👨🏾|👨🏼‍❤️‍💋‍👨🏿|👨🏽‍❤️‍💋‍👨🏻|👨🏽‍❤️‍💋‍👨🏼|👨🏽‍❤️‍💋‍👨🏽|👨🏽‍❤️‍💋‍👨🏾|👨🏽‍❤️‍💋‍👨🏿|👨🏾‍❤️‍💋‍👨🏻|👨🏾‍❤️‍💋‍👨🏼|👨🏾‍❤️‍💋‍👨🏽|👨🏾‍❤️‍💋‍👨🏾|👨🏾‍❤️‍💋‍👨🏿|👨🏿‍❤️‍💋‍👨🏻|👨🏿‍❤️‍💋‍👨🏼|👨🏿‍❤️‍💋‍👨🏽|👨🏿‍❤️‍💋‍👨🏾|👨🏿‍❤️‍💋‍👨🏿|👩🏻‍❤️‍💋‍👩🏻|👩🏻‍❤️‍💋‍👩🏼|👩🏻‍❤️‍💋‍👩🏽|👩🏻‍❤️‍💋‍👩🏾|👩🏻‍❤️‍💋‍👩🏿|👩🏼‍❤️‍💋‍👩🏻|👩🏼‍❤️‍💋‍👩🏼|👩🏼‍❤️‍💋‍👩🏽|👩🏼‍❤️‍💋‍👩🏾|👩🏼‍❤️‍💋‍👩🏿|👩🏽‍❤️‍💋‍👩🏻|👩🏽‍❤️‍💋‍👩🏼|👩🏽‍❤️‍💋‍👩🏽|👩🏽‍❤️‍💋‍👩🏾|👩🏽‍❤️‍💋‍👩🏿|👩🏾‍❤️‍💋‍👩🏻|👩🏾‍❤️‍💋‍👩🏼|👩🏾‍❤️‍💋‍👩🏽|👩🏾‍❤️‍💋‍👩🏾|👩🏾‍❤️‍💋‍👩🏿|👩🏿‍❤️‍💋‍👩🏻|👩🏿‍❤️‍💋‍👩🏼|👩🏿‍❤️‍💋‍👩🏽|👩🏿‍❤️‍💋‍👩🏾|👩🏿‍❤️‍💋‍👩🏿|🏴󠁧󠁢󠁥󠁮󠁧󠁿|🏴󠁧󠁢󠁳󠁣󠁴󠁿|🏴󠁧󠁢󠁷󠁬󠁳󠁿|🧑🏻‍🤝‍🧑🏻|🧑🏻‍🤝‍🧑🏼|🧑🏻‍🤝‍🧑🏽|🧑🏻‍🤝‍🧑🏾|🧑🏻‍🤝‍🧑🏿|🧑🏼‍🤝‍🧑🏻|🧑🏼‍🤝‍🧑🏼|🧑🏼‍🤝‍🧑🏽|🧑🏼‍🤝‍🧑🏾|🧑🏼‍🤝‍🧑🏿|🧑🏽‍🤝‍🧑🏻|🧑🏽‍🤝‍🧑🏼|🧑🏽‍🤝‍🧑🏽|🧑🏽‍🤝‍🧑🏾|🧑🏽‍🤝‍🧑🏿|🧑🏾‍🤝‍🧑🏻|🧑🏾‍🤝‍🧑🏼|🧑🏾‍🤝‍🧑🏽|🧑🏾‍🤝‍🧑🏾|🧑🏾‍🤝‍🧑🏿|🧑🏿‍🤝‍🧑🏻|🧑🏿‍🤝‍🧑🏼|🧑🏿‍🤝‍🧑🏽|🧑🏿‍🤝‍🧑🏾|🧑🏿‍🤝‍🧑🏿|👩🏻‍🤝‍👩🏼|👩🏻‍🤝‍👩🏽|👩🏻‍🤝‍👩🏾|👩🏻‍🤝‍👩🏿|👩🏼‍🤝‍👩🏻|👩🏼‍🤝‍👩🏽|👩🏼‍🤝‍👩🏾|👩🏼‍🤝‍👩🏿|👩🏽‍🤝‍👩🏻|👩🏽‍🤝‍👩🏼|👩🏽‍🤝‍👩🏾|👩🏽‍🤝‍👩🏿|👩🏾‍🤝‍👩🏻|👩🏾‍🤝‍👩🏼|👩🏾‍🤝‍👩🏽|👩🏾‍🤝‍👩🏿|👩🏿‍🤝‍👩🏻|👩🏿‍🤝‍👩🏼|👩🏿‍🤝‍👩🏽|👩🏿‍🤝‍👩🏾|👩🏻‍🤝‍👨🏼|👩🏻‍🤝‍👨🏽|👩🏻‍🤝‍👨🏾|👩🏻‍🤝‍👨🏿|👩🏼‍🤝‍👨🏻|👩🏼‍🤝‍👨🏽|👩🏼‍🤝‍👨🏾|👩🏼‍🤝‍👨🏿|👩🏽‍🤝‍👨🏻|👩🏽‍🤝‍👨🏼|👩🏽‍🤝‍👨🏾|👩🏽‍🤝‍👨🏿|👩🏾‍🤝‍👨🏻|👩🏾‍🤝‍👨🏼|👩🏾‍🤝‍👨🏽|👩🏾‍🤝‍👨🏿|👩🏿‍🤝‍👨🏻|👩🏿‍🤝‍👨🏼|👩🏿‍🤝‍👨🏽|👩🏿‍🤝‍👨🏾|👨🏻‍🤝‍👨🏼|👨🏻‍🤝‍👨🏽|👨🏻‍🤝‍👨🏾|👨🏻‍🤝‍👨🏿|👨🏼‍🤝‍👨🏻|👨🏼‍🤝‍👨🏽|👨🏼‍🤝‍👨🏾|👨🏼‍🤝‍👨🏿|👨🏽‍🤝‍👨🏻|👨🏽‍🤝‍👨🏼|👨🏽‍🤝‍👨🏾|👨🏽‍🤝‍👨🏿|👨🏾‍🤝‍👨🏻|👨🏾‍🤝‍👨🏼|👨🏾‍🤝‍👨🏽|👨🏾‍🤝‍👨🏿|👨🏿‍🤝‍👨🏻|👨🏿‍🤝‍👨🏼|👨🏿‍🤝‍👨🏽|👨🏿‍🤝‍👨🏾|🧑🏻‍❤️‍🧑🏼|🧑🏻‍❤️‍🧑🏽|🧑🏻‍❤️‍🧑🏾|🧑🏻‍❤️‍🧑🏿|🧑🏼‍❤️‍🧑🏻|🧑🏼‍❤️‍🧑🏽|🧑🏼‍❤️‍🧑🏾|🧑🏼‍❤️‍🧑🏿|🧑🏽‍❤️‍🧑🏻|🧑🏽‍❤️‍🧑🏼|🧑🏽‍❤️‍🧑🏾|🧑🏽‍❤️‍🧑🏿|🧑🏾‍❤️‍🧑🏻|🧑🏾‍❤️‍🧑🏼|🧑🏾‍❤️‍🧑🏽|🧑🏾‍❤️‍🧑🏿|🧑🏿‍❤️‍🧑🏻|🧑🏿‍❤️‍🧑🏼|🧑🏿‍❤️‍🧑🏽|🧑🏿‍❤️‍🧑🏾|👩🏻‍❤️‍👨🏻|👩🏻‍❤️‍👨🏼|👩🏻‍❤️‍👨🏽|👩🏻‍❤️‍👨🏾|👩🏻‍❤️‍👨🏿|👩🏼‍❤️‍👨🏻|👩🏼‍❤️‍👨🏼|👩🏼‍❤️‍👨🏽|👩🏼‍❤️‍👨🏾|👩🏼‍❤️‍👨🏿|👩🏽‍❤️‍👨🏻|👩🏽‍❤️‍👨🏼|👩🏽‍❤️‍👨🏽|👩🏽‍❤️‍👨🏾|👩🏽‍❤️‍👨🏿|👩🏾‍❤️‍👨🏻|👩🏾‍❤️‍👨🏼|👩🏾‍❤️‍👨🏽|👩🏾‍❤️‍👨🏾|👩🏾‍❤️‍👨🏿|👩🏿‍❤️‍👨🏻|👩🏿‍❤️‍👨🏼|👩🏿‍❤️‍👨🏽|👩🏿‍❤️‍👨🏾|👩🏿‍❤️‍👨🏿|👨🏻‍❤️‍👨🏻|👨🏻‍❤️‍👨🏼|👨🏻‍❤️‍👨🏽|👨🏻‍❤️‍👨🏾|👨🏻‍❤️‍👨🏿|👨🏼‍❤️‍👨🏻|👨🏼‍❤️‍👨🏼|👨🏼‍❤️‍👨🏽|👨🏼‍❤️‍👨🏾|👨🏼‍❤️‍👨🏿|👨🏽‍❤️‍👨🏻|👨🏽‍❤️‍👨🏼|👨🏽‍❤️‍👨🏽|👨🏽‍❤️‍👨🏾|👨🏽‍❤️‍👨🏿|👨🏾‍❤️‍👨🏻|👨🏾‍❤️‍👨🏼|👨🏾‍❤️‍👨🏽|👨🏾‍❤️‍👨🏾|👨🏾‍❤️‍👨🏿|👨🏿‍❤️‍👨🏻|👨🏿‍❤️‍👨🏼|👨🏿‍❤️‍👨🏽|👨🏿‍❤️‍👨🏾|👨🏿‍❤️‍👨🏿|👩🏻‍❤️‍👩🏻|👩🏻‍❤️‍👩🏼|👩🏻‍❤️‍👩🏽|👩🏻‍❤️‍👩🏾|👩🏻‍❤️‍👩🏿|👩🏼‍❤️‍👩🏻|👩🏼‍❤️‍👩🏼|👩🏼‍❤️‍👩🏽|👩🏼‍❤️‍👩🏾|👩🏼‍❤️‍👩🏿|👩🏽‍❤️‍👩🏻|👩🏽‍❤️‍👩🏼|👩🏽‍❤️‍👩🏽|👩🏽‍❤️‍👩🏾|👩🏽‍❤️‍👩🏿|👩🏾‍❤️‍👩🏻|👩🏾‍❤️‍👩🏼|👩🏾‍❤️‍👩🏽|👩🏾‍❤️‍👩🏾|👩🏾‍❤️‍👩🏿|👩🏿‍❤️‍👩🏻|👩🏿‍❤️‍👩🏼|👩🏿‍❤️‍👩🏽|👩🏿‍❤️‍👩🏾|👩🏿‍❤️‍👩🏿|👩‍❤️‍💋‍👨|👨‍❤️‍💋‍👨|👩‍❤️‍💋‍👩|👨‍👩‍👧‍👦|👨‍👩‍👦‍👦|👨‍👩‍👧‍👧|👨‍👨‍👧‍👦|👨‍👨‍👦‍👦|👨‍👨‍👧‍👧|👩‍👩‍👧‍👦|👩‍👩‍👦‍👦|👩‍👩‍👧‍👧|🧑‍🤝‍🧑|👩‍❤️‍👨|👨‍❤️‍👨|👩‍❤️‍👩|👨‍👩‍👦|👨‍👩‍👧|👨‍👨‍👦|👨‍👨‍👧|👩‍👩‍👦|👩‍👩‍👧|👨‍👦‍👦|👨‍👧‍👦|👨‍👧‍👧|👩‍👦‍👦|👩‍👧‍👦|👩‍👧‍👧|👁️‍🗨️|🧔🏻‍♂️|🧔🏼‍♂️|🧔🏽‍♂️|🧔🏾‍♂️|🧔🏿‍♂️|🧔🏻‍♀️|🧔🏼‍♀️|🧔🏽‍♀️|🧔🏾‍♀️|🧔🏿‍♀️|👨🏻‍🦰|👨🏼‍🦰|👨🏽‍🦰|👨🏾‍🦰|👨🏿‍🦰|👨🏻‍🦱|👨🏼‍🦱|👨🏽‍🦱|👨🏾‍🦱|👨🏿‍🦱|👨🏻‍🦳|👨🏼‍🦳|👨🏽‍🦳|👨🏾‍🦳|👨🏿‍🦳|👨🏻‍🦲|👨🏼‍🦲|👨🏽‍🦲|👨🏾‍🦲|👨🏿‍🦲|👩🏻‍🦰|👩🏼‍🦰|👩🏽‍🦰|👩🏾‍🦰|👩🏿‍🦰|🧑🏻‍🦰|🧑🏼‍🦰|🧑🏽‍🦰|🧑🏾‍🦰|🧑🏿‍🦰|👩🏻‍🦱|👩🏼‍🦱|👩🏽‍🦱|👩🏾‍🦱|👩🏿‍🦱|🧑🏻‍🦱|🧑🏼‍🦱|🧑🏽‍🦱|🧑🏾‍🦱|🧑🏿‍🦱|👩🏻‍🦳|👩🏼‍🦳|👩🏽‍🦳|👩🏾‍🦳|👩🏿‍🦳|🧑🏻‍🦳|🧑🏼‍🦳|🧑🏽‍🦳|🧑🏾‍🦳|🧑🏿‍🦳|👩🏻‍🦲|👩🏼‍🦲|👩🏽‍🦲|👩🏾‍🦲|👩🏿‍🦲|🧑🏻‍🦲|🧑🏼‍🦲|🧑🏽‍🦲|🧑🏾‍🦲|🧑🏿‍🦲|👱🏻‍♀️|👱🏼‍♀️|👱🏽‍♀️|👱🏾‍♀️|👱🏿‍♀️|👱🏻‍♂️|👱🏼‍♂️|👱🏽‍♂️|👱🏾‍♂️|👱🏿‍♂️|🙍🏻‍♂️|🙍🏼‍♂️|🙍🏽‍♂️|🙍🏾‍♂️|🙍🏿‍♂️|🙍🏻‍♀️|🙍🏼‍♀️|🙍🏽‍♀️|🙍🏾‍♀️|🙍🏿‍♀️|🙎🏻‍♂️|🙎🏼‍♂️|🙎🏽‍♂️|🙎🏾‍♂️|🙎🏿‍♂️|🙎🏻‍♀️|🙎🏼‍♀️|🙎🏽‍♀️|🙎🏾‍♀️|🙎🏿‍♀️|🙅🏻‍♂️|🙅🏼‍♂️|🙅🏽‍♂️|🙅🏾‍♂️|🙅🏿‍♂️|🙅🏻‍♀️|🙅🏼‍♀️|🙅🏽‍♀️|🙅🏾‍♀️|🙅🏿‍♀️|🙆🏻‍♂️|🙆🏼‍♂️|🙆🏽‍♂️|🙆🏾‍♂️|🙆🏿‍♂️|🙆🏻‍♀️|🙆🏼‍♀️|🙆🏽‍♀️|🙆🏾‍♀️|🙆🏿‍♀️|💁🏻‍♂️|💁🏼‍♂️|💁🏽‍♂️|💁🏾‍♂️|💁🏿‍♂️|💁🏻‍♀️|💁🏼‍♀️|💁🏽‍♀️|💁🏾‍♀️|💁🏿‍♀️|🙋🏻‍♂️|🙋🏼‍♂️|🙋🏽‍♂️|🙋🏾‍♂️|🙋🏿‍♂️|🙋🏻‍♀️|🙋🏼‍♀️|🙋🏽‍♀️|🙋🏾‍♀️|🙋🏿‍♀️|🧏🏻‍♂️|🧏🏼‍♂️|🧏🏽‍♂️|🧏🏾‍♂️|🧏🏿‍♂️|🧏🏻‍♀️|🧏🏼‍♀️|🧏🏽‍♀️|🧏🏾‍♀️|🧏🏿‍♀️|🙇🏻‍♂️|🙇🏼‍♂️|🙇🏽‍♂️|🙇🏾‍♂️|🙇🏿‍♂️|🙇🏻‍♀️|🙇🏼‍♀️|🙇🏽‍♀️|🙇🏾‍♀️|🙇🏿‍♀️|🤦🏻‍♂️|🤦🏼‍♂️|🤦🏽‍♂️|🤦🏾‍♂️|🤦🏿‍♂️|🤦🏻‍♀️|🤦🏼‍♀️|🤦🏽‍♀️|🤦🏾‍♀️|🤦🏿‍♀️|🤷🏻‍♂️|🤷🏼‍♂️|🤷🏽‍♂️|🤷🏾‍♂️|🤷🏿‍♂️|🤷🏻‍♀️|🤷🏼‍♀️|🤷🏽‍♀️|🤷🏾‍♀️|🤷🏿‍♀️|🧑🏻‍⚕️|🧑🏼‍⚕️|🧑🏽‍⚕️|🧑🏾‍⚕️|🧑🏿‍⚕️|👨🏻‍⚕️|👨🏼‍⚕️|👨🏽‍⚕️|👨🏾‍⚕️|👨🏿‍⚕️|👩🏻‍⚕️|👩🏼‍⚕️|👩🏽‍⚕️|👩🏾‍⚕️|👩🏿‍⚕️|🧑🏻‍🎓|🧑🏼‍🎓|🧑🏽‍🎓|🧑🏾‍🎓|🧑🏿‍🎓|👨🏻‍🎓|👨🏼‍🎓|👨🏽‍🎓|👨🏾‍🎓|👨🏿‍🎓|👩🏻‍🎓|👩🏼‍🎓|👩🏽‍🎓|👩🏾‍🎓|👩🏿‍🎓|🧑🏻‍🏫|🧑🏼‍🏫|🧑🏽‍🏫|🧑🏾‍🏫|🧑🏿‍🏫|👨🏻‍🏫|👨🏼‍🏫|👨🏽‍🏫|👨🏾‍🏫|👨🏿‍🏫|👩🏻‍🏫|👩🏼‍🏫|👩🏽‍🏫|👩🏾‍🏫|👩🏿‍🏫|🧑🏻‍⚖️|🧑🏼‍⚖️|🧑🏽‍⚖️|🧑🏾‍⚖️|🧑🏿‍⚖️|👨🏻‍⚖️|👨🏼‍⚖️|👨🏽‍⚖️|👨🏾‍⚖️|👨🏿‍⚖️|👩🏻‍⚖️|👩🏼‍⚖️|👩🏽‍⚖️|👩🏾‍⚖️|👩🏿‍⚖️|🧑🏻‍🌾|🧑🏼‍🌾|🧑🏽‍🌾|🧑🏾‍🌾|🧑🏿‍🌾|👨🏻‍🌾|👨🏼‍🌾|👨🏽‍🌾|👨🏾‍🌾|👨🏿‍🌾|👩🏻‍🌾|👩🏼‍🌾|👩🏽‍🌾|👩🏾‍🌾|👩🏿‍🌾|🧑🏻‍🍳|🧑🏼‍🍳|🧑🏽‍🍳|🧑🏾‍🍳|🧑🏿‍🍳|👨🏻‍🍳|👨🏼‍🍳|👨🏽‍🍳|👨🏾‍🍳|👨🏿‍🍳|👩🏻‍🍳|👩🏼‍🍳|👩🏽‍🍳|👩🏾‍🍳|👩🏿‍🍳|🧑🏻‍🔧|🧑🏼‍🔧|🧑🏽‍🔧|🧑🏾‍🔧|🧑🏿‍🔧|👨🏻‍🔧|👨🏼‍🔧|👨🏽‍🔧|👨🏾‍🔧|👨🏿‍🔧|👩🏻‍🔧|👩🏼‍🔧|👩🏽‍🔧|👩🏾‍🔧|👩🏿‍🔧|🧑🏻‍🏭|🧑🏼‍🏭|🧑🏽‍🏭|🧑🏾‍🏭|🧑🏿‍🏭|👨🏻‍🏭|👨🏼‍🏭|👨🏽‍🏭|👨🏾‍🏭|👨🏿‍🏭|👩🏻‍🏭|👩🏼‍🏭|👩🏽‍🏭|👩🏾‍🏭|👩🏿‍🏭|🧑🏻‍💼|🧑🏼‍💼|🧑🏽‍💼|🧑🏾‍💼|🧑🏿‍💼|👨🏻‍💼|👨🏼‍💼|👨🏽‍💼|👨🏾‍💼|👨🏿‍💼|👩🏻‍💼|👩🏼‍💼|👩🏽‍💼|👩🏾‍💼|👩🏿‍💼|🧑🏻‍🔬|🧑🏼‍🔬|🧑🏽‍🔬|🧑🏾‍🔬|🧑🏿‍🔬|👨🏻‍🔬|👨🏼‍🔬|👨🏽‍🔬|👨🏾‍🔬|👨🏿‍🔬|👩🏻‍🔬|👩🏼‍🔬|👩🏽‍🔬|👩🏾‍🔬|👩🏿‍🔬|🧑🏻‍💻|🧑🏼‍💻|🧑🏽‍💻|🧑🏾‍💻|🧑🏿‍💻|👨🏻‍💻|👨🏼‍💻|👨🏽‍💻|👨🏾‍💻|👨🏿‍💻|👩🏻‍💻|👩🏼‍💻|👩🏽‍💻|👩🏾‍💻|👩🏿‍💻|🧑🏻‍🎤|🧑🏼‍🎤|🧑🏽‍🎤|🧑🏾‍🎤|🧑🏿‍🎤|👨🏻‍🎤|👨🏼‍🎤|👨🏽‍🎤|👨🏾‍🎤|👨🏿‍🎤|👩🏻‍🎤|👩🏼‍🎤|👩🏽‍🎤|👩🏾‍🎤|👩🏿‍🎤|🧑🏻‍🎨|🧑🏼‍🎨|🧑🏽‍🎨|🧑🏾‍🎨|🧑🏿‍🎨|👨🏻‍🎨|👨🏼‍🎨|👨🏽‍🎨|👨🏾‍🎨|👨🏿‍🎨|👩🏻‍🎨|👩🏼‍🎨|👩🏽‍🎨|👩🏾‍🎨|👩🏿‍🎨|🧑🏻‍✈️|🧑🏼‍✈️|🧑🏽‍✈️|🧑🏾‍✈️|🧑🏿‍✈️|👨🏻‍✈️|👨🏼‍✈️|👨🏽‍✈️|👨🏾‍✈️|👨🏿‍✈️|👩🏻‍✈️|👩🏼‍✈️|👩🏽‍✈️|👩🏾‍✈️|👩🏿‍✈️|🧑🏻‍🚀|🧑🏼‍🚀|🧑🏽‍🚀|🧑🏾‍🚀|🧑🏿‍🚀|👨🏻‍🚀|👨🏼‍🚀|👨🏽‍🚀|👨🏾‍🚀|👨🏿‍🚀|👩🏻‍🚀|👩🏼‍🚀|👩🏽‍🚀|👩🏾‍🚀|👩🏿‍🚀|🧑🏻‍🚒|🧑🏼‍🚒|🧑🏽‍🚒|🧑🏾‍🚒|🧑🏿‍🚒|👨🏻‍🚒|👨🏼‍🚒|👨🏽‍🚒|👨🏾‍🚒|👨🏿‍🚒|👩🏻‍🚒|👩🏼‍🚒|👩🏽‍🚒|👩🏾‍🚒|👩🏿‍🚒|👮🏻‍♂️|👮🏼‍♂️|👮🏽‍♂️|👮🏾‍♂️|👮🏿‍♂️|👮🏻‍♀️|👮🏼‍♀️|👮🏽‍♀️|👮🏾‍♀️|👮🏿‍♀️|🕵🏻‍♂️|🕵🏼‍♂️|🕵🏽‍♂️|🕵🏾‍♂️|🕵🏿‍♂️|🕵🏻‍♀️|🕵🏼‍♀️|🕵🏽‍♀️|🕵🏾‍♀️|🕵🏿‍♀️|💂🏻‍♂️|💂🏼‍♂️|💂🏽‍♂️|💂🏾‍♂️|💂🏿‍♂️|💂🏻‍♀️|💂🏼‍♀️|💂🏽‍♀️|💂🏾‍♀️|💂🏿‍♀️|👷🏻‍♂️|👷🏼‍♂️|👷🏽‍♂️|👷🏾‍♂️|👷🏿‍♂️|👷🏻‍♀️|👷🏼‍♀️|👷🏽‍♀️|👷🏾‍♀️|👷🏿‍♀️|👳🏻‍♂️|👳🏼‍♂️|👳🏽‍♂️|👳🏾‍♂️|👳🏿‍♂️|👳🏻‍♀️|👳🏼‍♀️|👳🏽‍♀️|👳🏾‍♀️|👳🏿‍♀️|🤵🏻‍♂️|🤵🏼‍♂️|🤵🏽‍♂️|🤵🏾‍♂️|🤵🏿‍♂️|🤵🏻‍♀️|🤵🏼‍♀️|🤵🏽‍♀️|🤵🏾‍♀️|🤵🏿‍♀️|👰🏻‍♂️|👰🏼‍♂️|👰🏽‍♂️|👰🏾‍♂️|👰🏿‍♂️|👰🏻‍♀️|👰🏼‍♀️|👰🏽‍♀️|👰🏾‍♀️|👰🏿‍♀️|👩🏻‍🍼|👩🏼‍🍼|👩🏽‍🍼|👩🏾‍🍼|👩🏿‍🍼|👨🏻‍🍼|👨🏼‍🍼|👨🏽‍🍼|👨🏾‍🍼|👨🏿‍🍼|🧑🏻‍🍼|🧑🏼‍🍼|🧑🏽‍🍼|🧑🏾‍🍼|🧑🏿‍🍼|🧑🏻‍🎄|🧑🏼‍🎄|🧑🏽‍🎄|🧑🏾‍🎄|🧑🏿‍🎄|🦸🏻‍♂️|🦸🏼‍♂️|🦸🏽‍♂️|🦸🏾‍♂️|🦸🏿‍♂️|🦸🏻‍♀️|🦸🏼‍♀️|🦸🏽‍♀️|🦸🏾‍♀️|🦸🏿‍♀️|🦹🏻‍♂️|🦹🏼‍♂️|🦹🏽‍♂️|🦹🏾‍♂️|🦹🏿‍♂️|🦹🏻‍♀️|🦹🏼‍♀️|🦹🏽‍♀️|🦹🏾‍♀️|🦹🏿‍♀️|🧙🏻‍♂️|🧙🏼‍♂️|🧙🏽‍♂️|🧙🏾‍♂️|🧙🏿‍♂️|🧙🏻‍♀️|🧙🏼‍♀️|🧙🏽‍♀️|🧙🏾‍♀️|🧙🏿‍♀️|🧚🏻‍♂️|🧚🏼‍♂️|🧚🏽‍♂️|🧚🏾‍♂️|🧚🏿‍♂️|🧚🏻‍♀️|🧚🏼‍♀️|🧚🏽‍♀️|🧚🏾‍♀️|🧚🏿‍♀️|🧛🏻‍♂️|🧛🏼‍♂️|🧛🏽‍♂️|🧛🏾‍♂️|🧛🏿‍♂️|🧛🏻‍♀️|🧛🏼‍♀️|🧛🏽‍♀️|🧛🏾‍♀️|🧛🏿‍♀️|🧜🏻‍♂️|🧜🏼‍♂️|🧜🏽‍♂️|🧜🏾‍♂️|🧜🏿‍♂️|🧜🏻‍♀️|🧜🏼‍♀️|🧜🏽‍♀️|🧜🏾‍♀️|🧜🏿‍♀️|🧝🏻‍♂️|🧝🏼‍♂️|🧝🏽‍♂️|🧝🏾‍♂️|🧝🏿‍♂️|🧝🏻‍♀️|🧝🏼‍♀️|🧝🏽‍♀️|🧝🏾‍♀️|🧝🏿‍♀️|💆🏻‍♂️|💆🏼‍♂️|💆🏽‍♂️|💆🏾‍♂️|💆🏿‍♂️|💆🏻‍♀️|💆🏼‍♀️|💆🏽‍♀️|💆🏾‍♀️|💆🏿‍♀️|💇🏻‍♂️|💇🏼‍♂️|💇🏽‍♂️|💇🏾‍♂️|💇🏿‍♂️|💇🏻‍♀️|💇🏼‍♀️|💇🏽‍♀️|💇🏾‍♀️|💇🏿‍♀️|🚶🏻‍♂️|🚶🏼‍♂️|🚶🏽‍♂️|🚶🏾‍♂️|🚶🏿‍♂️|🚶🏻‍♀️|🚶🏼‍♀️|🚶🏽‍♀️|🚶🏾‍♀️|🚶🏿‍♀️|🧍🏻‍♂️|🧍🏼‍♂️|🧍🏽‍♂️|🧍🏾‍♂️|🧍🏿‍♂️|🧍🏻‍♀️|🧍🏼‍♀️|🧍🏽‍♀️|🧍🏾‍♀️|🧍🏿‍♀️|🧎🏻‍♂️|🧎🏼‍♂️|🧎🏽‍♂️|🧎🏾‍♂️|🧎🏿‍♂️|🧎🏻‍♀️|🧎🏼‍♀️|🧎🏽‍♀️|🧎🏾‍♀️|🧎🏿‍♀️|🧑🏻‍🦯|🧑🏼‍🦯|🧑🏽‍🦯|🧑🏾‍🦯|🧑🏿‍🦯|👨🏻‍🦯|👨🏼‍🦯|👨🏽‍🦯|👨🏾‍🦯|👨🏿‍🦯|👩🏻‍🦯|👩🏼‍🦯|👩🏽‍🦯|👩🏾‍🦯|👩🏿‍🦯|🧑🏻‍🦼|🧑🏼‍🦼|🧑🏽‍🦼|🧑🏾‍🦼|🧑🏿‍🦼|👨🏻‍🦼|👨🏼‍🦼|👨🏽‍🦼|👨🏾‍🦼|👨🏿‍🦼|👩🏻‍🦼|👩🏼‍🦼|👩🏽‍🦼|👩🏾‍🦼|👩🏿‍🦼|🧑🏻‍🦽|🧑🏼‍🦽|🧑🏽‍🦽|🧑🏾‍🦽|🧑🏿‍🦽|👨🏻‍🦽|👨🏼‍🦽|👨🏽‍🦽|👨🏾‍🦽|👨🏿‍🦽|👩🏻‍🦽|👩🏼‍🦽|👩🏽‍🦽|👩🏾‍🦽|👩🏿‍🦽|🏃🏻‍♂️|🏃🏼‍♂️|🏃🏽‍♂️|🏃🏾‍♂️|🏃🏿‍♂️|🏃🏻‍♀️|🏃🏼‍♀️|🏃🏽‍♀️|🏃🏾‍♀️|🏃🏿‍♀️|🧖🏻‍♂️|🧖🏼‍♂️|🧖🏽‍♂️|🧖🏾‍♂️|🧖🏿‍♂️|🧖🏻‍♀️|🧖🏼‍♀️|🧖🏽‍♀️|🧖🏾‍♀️|🧖🏿‍♀️|🧗🏻‍♂️|🧗🏼‍♂️|🧗🏽‍♂️|🧗🏾‍♂️|🧗🏿‍♂️|🧗🏻‍♀️|🧗🏼‍♀️|🧗🏽‍♀️|🧗🏾‍♀️|🧗🏿‍♀️|🏌🏻‍♂️|🏌🏼‍♂️|🏌🏽‍♂️|🏌🏾‍♂️|🏌🏿‍♂️|🏌🏻‍♀️|🏌🏼‍♀️|🏌🏽‍♀️|🏌🏾‍♀️|🏌🏿‍♀️|🏄🏻‍♂️|🏄🏼‍♂️|🏄🏽‍♂️|🏄🏾‍♂️|🏄🏿‍♂️|🏄🏻‍♀️|🏄🏼‍♀️|🏄🏽‍♀️|🏄🏾‍♀️|🏄🏿‍♀️|🚣🏻‍♂️|🚣🏼‍♂️|🚣🏽‍♂️|🚣🏾‍♂️|🚣🏿‍♂️|🚣🏻‍♀️|🚣🏼‍♀️|🚣🏽‍♀️|🚣🏾‍♀️|🚣🏿‍♀️|🏊🏻‍♂️|🏊🏼‍♂️|🏊🏽‍♂️|🏊🏾‍♂️|🏊🏿‍♂️|🏊🏻‍♀️|🏊🏼‍♀️|🏊🏽‍♀️|🏊🏾‍♀️|🏊🏿‍♀️|🏋🏻‍♂️|🏋🏼‍♂️|🏋🏽‍♂️|🏋🏾‍♂️|🏋🏿‍♂️|🏋🏻‍♀️|🏋🏼‍♀️|🏋🏽‍♀️|🏋🏾‍♀️|🏋🏿‍♀️|🚴🏻‍♂️|🚴🏼‍♂️|🚴🏽‍♂️|🚴🏾‍♂️|🚴🏿‍♂️|🚴🏻‍♀️|🚴🏼‍♀️|🚴🏽‍♀️|🚴🏾‍♀️|🚴🏿‍♀️|🚵🏻‍♂️|🚵🏼‍♂️|🚵🏽‍♂️|🚵🏾‍♂️|🚵🏿‍♂️|🚵🏻‍♀️|🚵🏼‍♀️|🚵🏽‍♀️|🚵🏾‍♀️|🚵🏿‍♀️|🤸🏻‍♂️|🤸🏼‍♂️|🤸🏽‍♂️|🤸🏾‍♂️|🤸🏿‍♂️|🤸🏻‍♀️|🤸🏼‍♀️|🤸🏽‍♀️|🤸🏾‍♀️|🤸🏿‍♀️|🤽🏻‍♂️|🤽🏼‍♂️|🤽🏽‍♂️|🤽🏾‍♂️|🤽🏿‍♂️|🤽🏻‍♀️|🤽🏼‍♀️|🤽🏽‍♀️|🤽🏾‍♀️|🤽🏿‍♀️|🤾🏻‍♂️|🤾🏼‍♂️|🤾🏽‍♂️|🤾🏾‍♂️|🤾🏿‍♂️|🤾🏻‍♀️|🤾🏼‍♀️|🤾🏽‍♀️|🤾🏾‍♀️|🤾🏿‍♀️|🤹🏻‍♂️|🤹🏼‍♂️|🤹🏽‍♂️|🤹🏾‍♂️|🤹🏿‍♂️|🤹🏻‍♀️|🤹🏼‍♀️|🤹🏽‍♀️|🤹🏾‍♀️|🤹🏿‍♀️|🧘🏻‍♂️|🧘🏼‍♂️|🧘🏽‍♂️|🧘🏾‍♂️|🧘🏿‍♂️|🧘🏻‍♀️|🧘🏼‍♀️|🧘🏽‍♀️|🧘🏾‍♀️|🧘🏿‍♀️|😶‍🌫️|🕵️‍♂️|🕵️‍♀️|🏌️‍♂️|🏌️‍♀️|🏋️‍♂️|🏋️‍♀️|🏳️‍🌈|🏳️‍⚧️|⛹🏻‍♂️|⛹🏼‍♂️|⛹🏽‍♂️|⛹🏾‍♂️|⛹🏿‍♂️|⛹🏻‍♀️|⛹🏼‍♀️|⛹🏽‍♀️|⛹🏾‍♀️|⛹🏿‍♀️|😮‍💨|😵‍💫|❤️‍🔥|❤️‍🩹|🧔‍♂️|🧔‍♀️|👨‍🦰|👨‍🦱|👨‍🦳|👨‍🦲|👩‍🦰|🧑‍🦰|👩‍🦱|🧑‍🦱|👩‍🦳|🧑‍🦳|👩‍🦲|🧑‍🦲|👱‍♀️|👱‍♂️|🙍‍♂️|🙍‍♀️|🙎‍♂️|🙎‍♀️|🙅‍♂️|🙅‍♀️|🙆‍♂️|🙆‍♀️|💁‍♂️|💁‍♀️|🙋‍♂️|🙋‍♀️|🧏‍♂️|🧏‍♀️|🙇‍♂️|🙇‍♀️|🤦‍♂️|🤦‍♀️|🤷‍♂️|🤷‍♀️|🧑‍⚕️|👨‍⚕️|👩‍⚕️|🧑‍🎓|👨‍🎓|👩‍🎓|🧑‍🏫|👨‍🏫|👩‍🏫|🧑‍⚖️|👨‍⚖️|👩‍⚖️|🧑‍🌾|👨‍🌾|👩‍🌾|🧑‍🍳|👨‍🍳|👩‍🍳|🧑‍🔧|👨‍🔧|👩‍🔧|🧑‍🏭|👨‍🏭|👩‍🏭|🧑‍💼|👨‍💼|👩‍💼|🧑‍🔬|👨‍🔬|👩‍🔬|🧑‍💻|👨‍💻|👩‍💻|🧑‍🎤|👨‍🎤|👩‍🎤|🧑‍🎨|👨‍🎨|👩‍🎨|🧑‍✈️|👨‍✈️|👩‍✈️|🧑‍🚀|👨‍🚀|👩‍🚀|🧑‍🚒|👨‍🚒|👩‍🚒|👮‍♂️|👮‍♀️|💂‍♂️|💂‍♀️|👷‍♂️|👷‍♀️|👳‍♂️|👳‍♀️|🤵‍♂️|🤵‍♀️|👰‍♂️|👰‍♀️|👩‍🍼|👨‍🍼|🧑‍🍼|🧑‍🎄|🦸‍♂️|🦸‍♀️|🦹‍♂️|🦹‍♀️|🧙‍♂️|🧙‍♀️|🧚‍♂️|🧚‍♀️|🧛‍♂️|🧛‍♀️|🧜‍♂️|🧜‍♀️|🧝‍♂️|🧝‍♀️|🧞‍♂️|🧞‍♀️|🧟‍♂️|🧟‍♀️|💆‍♂️|💆‍♀️|💇‍♂️|💇‍♀️|🚶‍♂️|🚶‍♀️|🧍‍♂️|🧍‍♀️|🧎‍♂️|🧎‍♀️|🧑‍🦯|👨‍🦯|👩‍🦯|🧑‍🦼|👨‍🦼|👩‍🦼|🧑‍🦽|👨‍🦽|👩‍🦽|🏃‍♂️|🏃‍♀️|👯‍♂️|👯‍♀️|🧖‍♂️|🧖‍♀️|🧗‍♂️|🧗‍♀️|🏄‍♂️|🏄‍♀️|🚣‍♂️|🚣‍♀️|🏊‍♂️|🏊‍♀️|⛹️‍♂️|⛹️‍♀️|🚴‍♂️|🚴‍♀️|🚵‍♂️|🚵‍♀️|🤸‍♂️|🤸‍♀️|🤼‍♂️|🤼‍♀️|🤽‍♂️|🤽‍♀️|🤾‍♂️|🤾‍♀️|🤹‍♂️|🤹‍♀️|🧘‍♂️|🧘‍♀️|👨‍👦|👨‍👧|👩‍👦|👩‍👧|🐕‍🦺|🐻‍❄️|🏴‍☠️|🐈‍⬛|🇦🇨|🇦🇩|🇦🇪|🇦🇫|🇦🇬|🇦🇮|🇦🇱|🇦🇲|🇦🇴|🇦🇶|🇦🇷|🇦🇸|🇦🇹|🇦🇺|🇦🇼|🇦🇽|🇦🇿|🇧🇦|🇧🇧|🇧🇩|🇧🇪|🇧🇫|🇧🇬|🇧🇭|🇧🇮|🇧🇯|🇧🇱|🇧🇲|🇧🇳|🇧🇴|🇧🇶|🇧🇷|🇧🇸|🇧🇹|🇧🇻|🇧🇼|🇧🇾|🇧🇿|🇨🇦|🇨🇨|🇨🇩|🇨🇫|🇨🇬|🇨🇭|🇨🇮|🇨🇰|🇨🇱|🇨🇲|🇨🇳|🇨🇴|🇨🇵|🇨🇷|🇨🇺|🇨🇻|🇨🇼|🇨🇽|🇨🇾|🇨🇿|🇩🇪|🇩🇬|🇩🇯|🇩🇰|🇩🇲|🇩🇴|🇩🇿|🇪🇦|🇪🇨|🇪🇪|🇪🇬|🇪🇭|🇪🇷|🇪🇸|🇪🇹|🇪🇺|🇫🇮|🇫🇯|🇫🇰|🇫🇲|🇫🇴|🇫🇷|🇬🇦|🇬🇧|🇬🇩|🇬🇪|🇬🇫|🇬🇬|🇬🇭|🇬🇮|🇬🇱|🇬🇲|🇬🇳|🇬🇵|🇬🇶|🇬🇷|🇬🇸|🇬🇹|🇬🇺|🇬🇼|🇬🇾|🇭🇰|🇭🇲|🇭🇳|🇭🇷|🇭🇹|🇭🇺|🇮🇨|🇮🇩|🇮🇪|🇮🇱|🇮🇲|🇮🇳|🇮🇴|🇮🇶|🇮🇷|🇮🇸|🇮🇹|🇯🇪|🇯🇲|🇯🇴|🇯🇵|🇰🇪|🇰🇬|🇰🇭|🇰🇮|🇰🇲|🇰🇳|🇰🇵|🇰🇷|🇰🇼|🇰🇾|🇰🇿|🇱🇦|🇱🇧|🇱🇨|🇱🇮|🇱🇰|🇱🇷|🇱🇸|🇱🇹|🇱🇺|🇱🇻|🇱🇾|🇲🇦|🇲🇨|🇲🇩|🇲🇪|🇲🇫|🇲🇬|🇲🇭|🇲🇰|🇲🇱|🇲🇲|🇲🇳|🇲🇴|🇲🇵|🇲🇶|🇲🇷|🇲🇸|🇲🇹|🇲🇺|🇲🇻|🇲🇼|🇲🇽|🇲🇾|🇲🇿|🇳🇦|🇳🇨|🇳🇪|🇳🇫|🇳🇬|🇳🇮|🇳🇱|🇳🇴|🇳🇵|🇳🇷|🇳🇺|🇳🇿|🇴🇲|🇵🇦|🇵🇪|🇵🇫|🇵🇬|🇵🇭|🇵🇰|🇵🇱|🇵🇲|🇵🇳|🇵🇷|🇵🇸|🇵🇹|🇵🇼|🇵🇾|🇶🇦|🇷🇪|🇷🇴|🇷🇸|🇷🇺|🇷🇼|🇸🇦|🇸🇧|🇸🇨|🇸🇩|🇸🇪|🇸🇬|🇸🇭|🇸🇮|🇸🇯|🇸🇰|🇸🇱|🇸🇲|🇸🇳|🇸🇴|🇸🇷|🇸🇸|🇸🇹|🇸🇻|🇸🇽|🇸🇾|🇸🇿|🇹🇦|🇹🇨|🇹🇩|🇹🇫|🇹🇬|🇹🇭|🇹🇯|🇹🇰|🇹🇱|🇹🇲|🇹🇳|🇹🇴|🇹🇷|🇹🇹|🇹🇻|🇹🇼|🇹🇿|🇺🇦|🇺🇬|🇺🇲|🇺🇳|🇺🇸|🇺🇾|🇺🇿|🇻🇦|🇻🇨|🇻🇪|🇻🇬|🇻🇮|🇻🇳|🇻🇺|🇼🇫|🇼🇸|🇽🇰|🇾🇪|🇾🇹|🇿🇦|🇿🇲|🇿🇼|👋🏻|👋🏼|👋🏽|👋🏾|👋🏿|🤚🏻|🤚🏼|🤚🏽|🤚🏾|🤚🏿|🖐🏻|🖐🏼|🖐🏽|🖐🏾|🖐🏿|🖖🏻|🖖🏼|🖖🏽|🖖🏾|🖖🏿|👌🏻|👌🏼|👌🏽|👌🏾|👌🏿|🤌🏻|🤌🏼|🤌🏽|🤌🏾|🤌🏿|🤏🏻|🤏🏼|🤏🏽|🤏🏾|🤏🏿|🤞🏻|🤞🏼|🤞🏽|🤞🏾|🤞🏿|🤟🏻|🤟🏼|🤟🏽|🤟🏾|🤟🏿|🤘🏻|🤘🏼|🤘🏽|🤘🏾|🤘🏿|🤙🏻|🤙🏼|🤙🏽|🤙🏾|🤙🏿|👈🏻|👈🏼|👈🏽|👈🏾|👈🏿|👉🏻|👉🏼|👉🏽|👉🏾|👉🏿|👆🏻|👆🏼|👆🏽|👆🏾|👆🏿|🖕🏻|🖕🏼|🖕🏽|🖕🏾|🖕🏿|👇🏻|👇🏼|👇🏽|👇🏾|👇🏿|👍🏻|👍🏼|👍🏽|👍🏾|👍🏿|👎🏻|👎🏼|👎🏽|👎🏾|👎🏿|👊🏻|👊🏼|👊🏽|👊🏾|👊🏿|🤛🏻|🤛🏼|🤛🏽|🤛🏾|🤛🏿|🤜🏻|🤜🏼|🤜🏽|🤜🏾|🤜🏿|👏🏻|👏🏼|👏🏽|👏🏾|👏🏿|🙌🏻|🙌🏼|🙌🏽|🙌🏾|🙌🏿|👐🏻|👐🏼|👐🏽|👐🏾|👐🏿|🤲🏻|🤲🏼|🤲🏽|🤲🏾|🤲🏿|🙏🏻|🙏🏼|🙏🏽|🙏🏾|🙏🏿|💅🏻|💅🏼|💅🏽|💅🏾|💅🏿|🤳🏻|🤳🏼|🤳🏽|🤳🏾|🤳🏿|💪🏻|💪🏼|💪🏽|💪🏾|💪🏿|🦵🏻|🦵🏼|🦵🏽|🦵🏾|🦵🏿|🦶🏻|🦶🏼|🦶🏽|🦶🏾|🦶🏿|👂🏻|👂🏼|👂🏽|👂🏾|👂🏿|🦻🏻|🦻🏼|🦻🏽|🦻🏾|🦻🏿|👃🏻|👃🏼|👃🏽|👃🏾|👃🏿|👶🏻|👶🏼|👶🏽|👶🏾|👶🏿|🧒🏻|🧒🏼|🧒🏽|🧒🏾|🧒🏿|👦🏻|👦🏼|👦🏽|👦🏾|👦🏿|👧🏻|👧🏼|👧🏽|👧🏾|👧🏿|🧑🏻|🧑🏼|🧑🏽|🧑🏾|🧑🏿|👱🏻|👱🏼|👱🏽|👱🏾|👱🏿|👨🏻|👨🏼|👨🏽|👨🏾|👨🏿|🧔🏻|🧔🏼|🧔🏽|🧔🏾|🧔🏿|👩🏻|👩🏼|👩🏽|👩🏾|👩🏿|🧓🏻|🧓🏼|🧓🏽|🧓🏾|🧓🏿|👴🏻|👴🏼|👴🏽|👴🏾|👴🏿|👵🏻|👵🏼|👵🏽|👵🏾|👵🏿|🙍🏻|🙍🏼|🙍🏽|🙍🏾|🙍🏿|🙎🏻|🙎🏼|🙎🏽|🙎🏾|🙎🏿|🙅🏻|🙅🏼|🙅🏽|🙅🏾|🙅🏿|🙆🏻|🙆🏼|🙆🏽|🙆🏾|🙆🏿|💁🏻|💁🏼|💁🏽|💁🏾|💁🏿|🙋🏻|🙋🏼|🙋🏽|🙋🏾|🙋🏿|🧏🏻|🧏🏼|🧏🏽|🧏🏾|🧏🏿|🙇🏻|🙇🏼|🙇🏽|🙇🏾|🙇🏿|🤦🏻|🤦🏼|🤦🏽|🤦🏾|🤦🏿|🤷🏻|🤷🏼|🤷🏽|🤷🏾|🤷🏿|👮🏻|👮🏼|👮🏽|👮🏾|👮🏿|🕵🏻|🕵🏼|🕵🏽|🕵🏾|🕵🏿|💂🏻|💂🏼|💂🏽|💂🏾|💂🏿|🥷🏻|🥷🏼|🥷🏽|🥷🏾|🥷🏿|👷🏻|👷🏼|👷🏽|👷🏾|👷🏿|🤴🏻|🤴🏼|🤴🏽|🤴🏾|🤴🏿|👸🏻|👸🏼|👸🏽|👸🏾|👸🏿|👳🏻|👳🏼|👳🏽|👳🏾|👳🏿|👲🏻|👲🏼|👲🏽|👲🏾|👲🏿|🧕🏻|🧕🏼|🧕🏽|🧕🏾|🧕🏿|🤵🏻|🤵🏼|🤵🏽|🤵🏾|🤵🏿|👰🏻|👰🏼|👰🏽|👰🏾|👰🏿|🤰🏻|🤰🏼|🤰🏽|🤰🏾|🤰🏿|🤱🏻|🤱🏼|🤱🏽|🤱🏾|🤱🏿|👼🏻|👼🏼|👼🏽|👼🏾|👼🏿|🎅🏻|🎅🏼|🎅🏽|🎅🏾|🎅🏿|🤶🏻|🤶🏼|🤶🏽|🤶🏾|🤶🏿|🦸🏻|🦸🏼|🦸🏽|🦸🏾|🦸🏿|🦹🏻|🦹🏼|🦹🏽|🦹🏾|🦹🏿|🧙🏻|🧙🏼|🧙🏽|🧙🏾|🧙🏿|🧚🏻|🧚🏼|🧚🏽|🧚🏾|🧚🏿|🧛🏻|🧛🏼|🧛🏽|🧛🏾|🧛🏿|🧜🏻|🧜🏼|🧜🏽|🧜🏾|🧜🏿|🧝🏻|🧝🏼|🧝🏽|🧝🏾|🧝🏿|💆🏻|💆🏼|💆🏽|💆🏾|💆🏿|💇🏻|💇🏼|💇🏽|💇🏾|💇🏿|🚶🏻|🚶🏼|🚶🏽|🚶🏾|🚶🏿|🧍🏻|🧍🏼|🧍🏽|🧍🏾|🧍🏿|🧎🏻|🧎🏼|🧎🏽|🧎🏾|🧎🏿|🏃🏻|🏃🏼|🏃🏽|🏃🏾|🏃🏿|💃🏻|💃🏼|💃🏽|💃🏾|💃🏿|🕺🏻|🕺🏼|🕺🏽|🕺🏾|🕺🏿|🕴🏻|🕴🏼|🕴🏽|🕴🏾|🕴🏿|🧖🏻|🧖🏼|🧖🏽|🧖🏾|🧖🏿|🧗🏻|🧗🏼|🧗🏽|🧗🏾|🧗🏿|🏇🏻|🏇🏼|🏇🏽|🏇🏾|🏇🏿|🏂🏻|🏂🏼|🏂🏽|🏂🏾|🏂🏿|🏌🏻|🏌🏼|🏌🏽|🏌🏾|🏌🏿|🏄🏻|🏄🏼|🏄🏽|🏄🏾|🏄🏿|🚣🏻|🚣🏼|🚣🏽|🚣🏾|🚣🏿|🏊🏻|🏊🏼|🏊🏽|🏊🏾|🏊🏿|🏋🏻|🏋🏼|🏋🏽|🏋🏾|🏋🏿|🚴🏻|🚴🏼|🚴🏽|🚴🏾|🚴🏿|🚵🏻|🚵🏼|🚵🏽|🚵🏾|🚵🏿|🤸🏻|🤸🏼|🤸🏽|🤸🏾|🤸🏿|🤽🏻|🤽🏼|🤽🏽|🤽🏾|🤽🏿|🤾🏻|🤾🏼|🤾🏽|🤾🏾|🤾🏿|🤹🏻|🤹🏼|🤹🏽|🤹🏾|🤹🏿|🧘🏻|🧘🏼|🧘🏽|🧘🏾|🧘🏿|🛀🏻|🛀🏼|🛀🏽|🛀🏾|🛀🏿|🛌🏻|🛌🏼|🛌🏽|🛌🏾|🛌🏿|👭🏻|👭🏼|👭🏽|👭🏾|👭🏿|👫🏻|👫🏼|👫🏽|👫🏾|👫🏿|👬🏻|👬🏼|👬🏽|👬🏾|👬🏿|💏🏻|💏🏼|💏🏽|💏🏾|💏🏿|💑🏻|💑🏼|💑🏽|💑🏾|💑🏿|#️⃣|0️⃣|1️⃣|2️⃣|3️⃣|4️⃣|5️⃣|6️⃣|7️⃣|8️⃣|9️⃣|✋🏻|✋🏼|✋🏽|✋🏾|✋🏿|✌🏻|✌🏼|✌🏽|✌🏾|✌🏿|☝🏻|☝🏼|☝🏽|☝🏾|☝🏿|✊🏻|✊🏼|✊🏽|✊🏾|✊🏿|✍🏻|✍🏼|✍🏽|✍🏾|✍🏿|⛹🏻|⛹🏼|⛹🏽|⛹🏾|⛹🏿|😀|😃|😄|😁|😆|😅|🤣|😂|🙂|🙃|😉|😊|😇|🥰|😍|🤩|😘|😗|😚|😙|🥲|😋|😛|😜|🤪|😝|🤑|🤗|🤭|🤫|🤔|🤐|🤨|😐|😑|😶|😏|😒|🙄|😬|🤥|😌|😔|😪|🤤|😴|😷|🤒|🤕|🤢|🤮|🤧|🥵|🥶|🥴|😵|🤯|🤠|🥳|🥸|😎|🤓|🧐|😕|😟|🙁|😮|😯|😲|😳|🥺|😦|😧|😨|😰|😥|😢|😭|😱|😖|😣|😞|😓|😩|😫|🥱|😤|😡|😠|🤬|😈|👿|💀|💩|🤡|👹|👺|👻|👽|👾|🤖|😺|😸|😹|😻|😼|😽|🙀|😿|😾|🙈|🙉|🙊|💋|💌|💘|💝|💖|💗|💓|💞|💕|💟|💔|🧡|💛|💚|💙|💜|🤎|🖤|🤍|💯|💢|💥|💫|💦|💨|🕳|💣|💬|🗨|🗯|💭|💤|👋|🤚|🖐|🖖|👌|🤌|🤏|🤞|🤟|🤘|🤙|👈|👉|👆|🖕|👇|👍|👎|👊|🤛|🤜|👏|🙌|👐|🤲|🤝|🙏|💅|🤳|💪|🦾|🦿|🦵|🦶|👂|🦻|👃|🧠|🫀|🫁|🦷|🦴|👀|👁|👅|👄|👶|🧒|👦|👧|🧑|👱|👨|🧔|👩|🧓|👴|👵|🙍|🙎|🙅|🙆|💁|🙋|🧏|🙇|🤦|🤷|👮|🕵|💂|🥷|👷|🤴|👸|👳|👲|🧕|🤵|👰|🤰|🤱|👼|🎅|🤶|🦸|🦹|🧙|🧚|🧛|🧜|🧝|🧞|🧟|💆|💇|🚶|🧍|🧎|🏃|💃|🕺|🕴|👯|🧖|🧗|🤺|🏇|🏂|🏌|🏄|🚣|🏊|🏋|🚴|🚵|🤸|🤼|🤽|🤾|🤹|🧘|🛀|🛌|👭|👫|👬|💏|💑|👪|🗣|👤|👥|🫂|👣|🦰|🦱|🦳|🦲|🐵|🐒|🦍|🦧|🐶|🐕|🦮|🐩|🐺|🦊|🦝|🐱|🐈|🦁|🐯|🐅|🐆|🐴|🐎|🦄|🦓|🦌|🦬|🐮|🐂|🐃|🐄|🐷|🐖|🐗|🐽|🐏|🐑|🐐|🐪|🐫|🦙|🦒|🐘|🦣|🦏|🦛|🐭|🐁|🐀|🐹|🐰|🐇|🐿|🦫|🦔|🦇|🐻|🐨|🐼|🦥|🦦|🦨|🦘|🦡|🐾|🦃|🐔|🐓|🐣|🐤|🐥|🐦|🐧|🕊|🦅|🦆|🦢|🦉|🦤|🪶|🦩|🦚|🦜|🐸|🐊|🐢|🦎|🐍|🐲|🐉|🦕|🦖|🐳|🐋|🐬|🦭|🐟|🐠|🐡|🦈|🐙|🐚|🐌|🦋|🐛|🐜|🐝|🪲|🐞|🦗|🪳|🕷|🕸|🦂|🦟|🪰|🪱|🦠|💐|🌸|💮|🏵|🌹|🥀|🌺|🌻|🌼|🌷|🌱|🪴|🌲|🌳|🌴|🌵|🌾|🌿|🍀|🍁|🍂|🍃|🍇|🍈|🍉|🍊|🍋|🍌|🍍|🥭|🍎|🍏|🍐|🍑|🍒|🍓|🫐|🥝|🍅|🫒|🥥|🥑|🍆|🥔|🥕|🌽|🌶|🫑|🥒|🥬|🥦|🧄|🧅|🍄|🥜|🌰|🍞|🥐|🥖|🫓|🥨|🥯|🥞|🧇|🧀|🍖|🍗|🥩|🥓|🍔|🍟|🍕|🌭|🥪|🌮|🌯|🫔|🥙|🧆|🥚|🍳|🥘|🍲|🫕|🥣|🥗|🍿|🧈|🧂|🥫|🍱|🍘|🍙|🍚|🍛|🍜|🍝|🍠|🍢|🍣|🍤|🍥|🥮|🍡|🥟|🥠|🥡|🦀|🦞|🦐|🦑|🦪|🍦|🍧|🍨|🍩|🍪|🎂|🍰|🧁|🥧|🍫|🍬|🍭|🍮|🍯|🍼|🥛|🫖|🍵|🍶|🍾|🍷|🍸|🍹|🍺|🍻|🥂|🥃|🥤|🧋|🧃|🧉|🧊|🥢|🍽|🍴|🥄|🔪|🏺|🌍|🌎|🌏|🌐|🗺|🗾|🧭|🏔|🌋|🗻|🏕|🏖|🏜|🏝|🏞|🏟|🏛|🏗|🧱|🪨|🪵|🛖|🏘|🏚|🏠|🏡|🏢|🏣|🏤|🏥|🏦|🏨|🏩|🏪|🏫|🏬|🏭|🏯|🏰|💒|🗼|🗽|🕌|🛕|🕍|🕋|🌁|🌃|🏙|🌄|🌅|🌆|🌇|🌉|🎠|🎡|🎢|💈|🎪|🚂|🚃|🚄|🚅|🚆|🚇|🚈|🚉|🚊|🚝|🚞|🚋|🚌|🚍|🚎|🚐|🚑|🚒|🚓|🚔|🚕|🚖|🚗|🚘|🚙|🛻|🚚|🚛|🚜|🏎|🏍|🛵|🦽|🦼|🛺|🚲|🛴|🛹|🛼|🚏|🛣|🛤|🛢|🚨|🚥|🚦|🛑|🚧|🛶|🚤|🛳|🛥|🚢|🛩|🛫|🛬|🪂|💺|🚁|🚟|🚠|🚡|🛰|🚀|🛸|🛎|🧳|🕰|🕛|🕧|🕐|🕜|🕑|🕝|🕒|🕞|🕓|🕟|🕔|🕠|🕕|🕡|🕖|🕢|🕗|🕣|🕘|🕤|🕙|🕥|🕚|🕦|🌑|🌒|🌓|🌔|🌕|🌖|🌗|🌘|🌙|🌚|🌛|🌜|🌡|🌝|🌞|🪐|🌟|🌠|🌌|🌤|🌥|🌦|🌧|🌨|🌩|🌪|🌫|🌬|🌀|🌈|🌂|🔥|💧|🌊|🎃|🎄|🎆|🎇|🧨|🎈|🎉|🎊|🎋|🎍|🎎|🎏|🎐|🎑|🧧|🎀|🎁|🎗|🎟|🎫|🎖|🏆|🏅|🥇|🥈|🥉|🥎|🏀|🏐|🏈|🏉|🎾|🥏|🎳|🏏|🏑|🏒|🥍|🏓|🏸|🥊|🥋|🥅|🎣|🤿|🎽|🎿|🛷|🥌|🎯|🪀|🪁|🎱|🔮|🪄|🧿|🎮|🕹|🎰|🎲|🧩|🧸|🪅|🪆|🃏|🀄|🎴|🎭|🖼|🎨|🧵|🪡|🧶|🪢|👓|🕶|🥽|🥼|🦺|👔|👕|👖|🧣|🧤|🧥|🧦|👗|👘|🥻|🩱|🩲|🩳|👙|👚|👛|👜|👝|🛍|🎒|🩴|👞|👟|🥾|🥿|👠|👡|🩰|👢|👑|👒|🎩|🎓|🧢|🪖|📿|💄|💍|💎|🔇|🔈|🔉|🔊|📢|📣|📯|🔔|🔕|🎼|🎵|🎶|🎙|🎚|🎛|🎤|🎧|📻|🎷|🪗|🎸|🎹|🎺|🎻|🪕|🥁|🪘|📱|📲|📞|📟|📠|🔋|🔌|💻|🖥|🖨|🖱|🖲|💽|💾|💿|📀|🧮|🎥|🎞|📽|🎬|📺|📷|📸|📹|📼|🔍|🔎|🕯|💡|🔦|🏮|🪔|📔|📕|📖|📗|📘|📙|📚|📓|📒|📃|📜|📄|📰|🗞|📑|🔖|🏷|💰|🪙|💴|💵|💶|💷|💸|💳|🧾|💹|📧|📨|📩|📤|📥|📦|📫|📪|📬|📭|📮|🗳|🖋|🖊|🖌|🖍|📝|💼|📁|📂|🗂|📅|📆|🗒|🗓|📇|📈|📉|📊|📋|📌|📍|📎|🖇|📏|📐|🗃|🗄|🗑|🔒|🔓|🔏|🔐|🔑|🗝|🔨|🪓|🛠|🗡|🔫|🪃|🏹|🛡|🪚|🔧|🪛|🔩|🗜|🦯|🔗|🪝|🧰|🧲|🪜|🧪|🧫|🧬|🔬|🔭|📡|💉|🩸|💊|🩹|🩺|🚪|🛗|🪞|🪟|🛏|🛋|🪑|🚽|🪠|🚿|🛁|🪤|🪒|🧴|🧷|🧹|🧺|🧻|🪣|🧼|🪥|🧽|🧯|🛒|🚬|🪦|🗿|🪧|🏧|🚮|🚰|🚹|🚺|🚻|🚼|🚾|🛂|🛃|🛄|🛅|🚸|🚫|🚳|🚭|🚯|🚱|🚷|📵|🔞|🔃|🔄|🔙|🔚|🔛|🔜|🔝|🛐|🕉|🕎|🔯|🔀|🔁|🔂|🔼|🔽|🎦|🔅|🔆|📶|📳|📴|💱|💲|🔱|📛|🔰|🔟|🔠|🔡|🔢|🔣|🔤|🅰|🆎|🅱|🆑|🆒|🆓|🆔|🆕|🆖|🅾|🆗|🅿|🆘|🆙|🆚|🈁|🈂|🈷|🈶|🈯|🉐|🈹|🈚|🈲|🉑|🈸|🈴|🈳|🈺|🈵|🔴|🟠|🟡|🟢|🔵|🟣|🟤|🟥|🟧|🟨|🟩|🟦|🟪|🟫|🔶|🔷|🔸|🔹|🔺|🔻|💠|🔘|🔳|🔲|🏁|🚩|🎌|🏴|🏳|🏻|🏼|🏽|🏾|🏿|☺|☹|☠|❣|❤|✋|✌|☝|✊|✍|⛷|⛹|☘|☕|⛰|⛪|⛩|⛲|⛺|♨|⛽|⚓|⛵|⛴|✈|⌛|⏳|⌚|⏰|⏱|⏲|☀|⭐|☁|⛅|⛈|☂|☔|⛱|⚡|❄|☃|⛄|☄|✨|⚽|⚾|⛳|⛸|♠|♥|♦|♣|♟|⛑|☎|⌨|✉|✏|✒|✂|⛏|⚒|⚔|⚙|⚖|⛓|⚗|⚰|⚱|♿|⚠|⛔|☢|☣|⬆|↗|➡|↘|⬇|↙|⬅|↖|↕|↔|↩|↪|⤴|⤵|⚛|✡|☸|☯|✝|☦|☪|☮|♈|♉|♊|♋|♌|♍|♎|♏|♐|♑|♒|♓|⛎|▶|⏩|⏭|⏯|◀|⏪|⏮|⏫|⏬|⏸|⏹|⏺|⏏|♀|♂|⚧|✖|➕|➖|➗|♾|‼|⁉|❓|❔|❕|❗|〰|⚕|♻|⚜|⭕|✅|☑|✔|❌|❎|➰|➿|〽|✳|✴|❇|©|®|™|ℹ|Ⓜ|㊗|㊙|⚫|⚪|⬛|⬜|◼|◻|◾|◽|▪|▫)/;
 
 
-class Annotation {
-  constructor(isCorrection, range, errorType, memo){
-    this.isCorrection = isCorrection; //else is suggestion
-    this.errorTypes = [];
-    this.range = range;
-    this.memo = memo;
-  }
-}
+//Get elements (not really necessary, id's are available as global variables)
+const srcArea = document.getElementById("userContent");
+const tarArea = document.getElementById("processedOutput");
 
-//EXAMPLE
-let anno1 = new Annotation(1,1,1,1);
-anno1.isCorrection = 0;
-anno1.memo = "good job";
-//
+//Event: File picked
+document.getElementById('filePicker').addEventListener('change', () => {
+    const selectedFiles = [...document.getElementById('filePicker').files];
+    if (!(selectedFiles)) {return;} 
 
-document.addEventListener("DOMContentLoaded", e => {
+    srcArea.innerHTML = ''; tarArea.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+        //Validate extension!!!!
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = e => {
+            let srcHeader = `\n--------------------------------------------------------------------------------\n[FILE_NAME: ${file.name}]\n\n\n`;
+            srcArea.append(srcHeader + e.target.result);
 
-//Get selection and show annotator
-areaTar.onclick = e => {
-e.stopPropagation(); //Exclude from closing on window.onclick
-userSelection = getSelected().getRangeAt(0); //Support only first selected range in Firefox + access range methods
-if (userSelection == "") {resetAnnotator(); return} //Nothing selected
-if (containsPartialNode(userSelection)) {
-  if (window.getSelection) {window.getSelection().removeAllRanges()}
-  else if (document.selection) {document.selection.empty();}
-  resetAnnotator(); 
-  return
-}
-showAnnotator(e, userSelection);
-}
+            let matchingStrings = filterEmoji(e.target.result);
+            let matchCount = matchingStrings.split(/\r\n|\r|\n/).length - 1
+            let tarHeader = `\n--------------------------------------------------------------------------------\n[FILE_NAME: ${file.name}] (matched lines: ${matchCount})\n\n\n`;
+            tarArea.append(tarHeader + matchingStrings);
+        }
+        //ERROR
+        reader.onerror = () => {alert('Something went wrong'); srcArea.innerHTML = 'Oops'; tarArea.innerHTML = 'Oops';}
+        // Check for Number.MAX_SAFE_INTEGER and set maxlength to prevent crashing ???
+    });
 
-//Hide annotator when anything clicked
-window.onclick = e => {
-  if (isElemVisible('annotatorPopup')) {
-    resetAnnotator();
-  }
-}
-
-//Exclude from window.onclick (Don't reset/hide when popup clicked)
-annotatorPopup.onclick = e => {e.stopPropagation()}
-
-//Hide with esc key
-document.addEventListener('keyup', e => {
-  if(e.key === "Escape"){
-    resetAnnotator();
-  }
-})
-
-applyButton.onclick = e => {
-  //Add memo to summary
-  let entry = document.createElement("li");
-  anno1.memo = popupText.value; //overwrite example
-  entry.appendChild(document.createTextNode(anno1.memo));
-  listOfAnnotations.appendChild(entry);
-  applyHighlighter(userSelection);
-  //If nothing checked, treat as suggestion
-  serial++ // Increase id counter
-  resetAnnotator();
-  hoverize();
-  
-}
 });
 
 
-//Make textarea read-only without disabling spellcheck.
-//areaTar.onkeydown = areaTar.onkeyup = areaTar.onkeypress = (e) => {e.preventDefault();}
-//ISSUE: selection.anchorOffset/focusOffset return wrong value when used in textarea. TEMP SOLUTION: Make editor a div.
-
-function getSelected() {
-    if (window.getSelection) {
-        selection = window.getSelection();
-    } else if (document.getSelection) {
-        selection = document.getSelection();
-    } else if (document.selection) {
-        selection = document.selection.createRange().text;
-    }
-    return selection
-}
-
-function isElemVisible(id) {
-  let elem = document.querySelector('#'+id);
-  return !(getComputedStyle(elem,'display').display == 'none');
-}
-
-function containsPartialNode(range) {
-  //Get range contents as document fragment (not plain text)
-  let originalFragment = range.cloneContents();
-  let temptag = document.createElement('temptag');
-  try {
-    range.surroundContents(temptag); //Fails when selection includes partial node
-  } catch {
-      return 1;
-  }
-  //Remove 'temptag' node
-  document.getSelection().getRangeAt(0).deleteContents();
-  //Restore original untagged content    
-  document.getSelection().getRangeAt(0).insertNode(originalFragment);
-  //Restore user selection
-  document.getSelection().addRange(range);
-  return 0;
-}
-
-function resetAnnotator(id) {
-  //hide
-  annotatorPopup.style.setProperty('display','none');
-  areaTar.innerHTML = areaTar.innerHTML.replace(/<.?temptag>/ig, ''); //<==!!! SHOULD THIS BE HERE????
-  //uncheck boxes
-}
-
-function showAnnotator(event, selection) {
-  //Pre-populate
-  let trimmedSelection = selection.toString().trim();
-  popupText.value = trimmedSelection;  
-  //Show
-  annotatorPopup.style.setProperty('left', (event.clientX) + "px");
-  annotatorPopup.style.setProperty('display','block');
-  //Calculate position to prevent overflow (must be visible first)
-  annotatorRight = annotatorPopup.getBoundingClientRect().right;
-  annotatorLeft = annotatorPopup.getBoundingClientRect().left;
-  /* areaTarRight = areaTar.getBoundingClientRect().right; */
-  winWidth = document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth;
-  //Set position
-  annotatorPopup.style.setProperty('top', (event.clientY + 15) + "px");
-  if (annotatorRight >= winWidth) {
-    annotatorPopup.style.setProperty('left', `${winWidth - (annotatorRight - annotatorLeft)}px`);
-  } else {
-    annotatorPopup.style.setProperty('left',  event.clientX + "px");
-  }
-  
 
 
-
-
-  //applyButton.focus(); //Ready for enter key
-
-
-}
-
-function applyHighlighter(range) {
-  highlightSpan.id = serial; //Counter variable updated globally
-  highlightSpan.title = serial;
-  try {
-      range.surroundContents(highlightSpan);
-      //highlightSpan.appendChild(range.extractContents());
-      //range.insertNode(highlightSpan);
-  } catch {
-      if (window.getSelection) {window.getSelection().removeAllRanges();}
-      else if (document.selection) {document.selection.empty();}
-      return
-  }
+function filterEmoji(originalString) {
+	let originalChunks = originalString.split("\n");
+	let resultString = '';
+	
+	for (let i = 0; i < originalChunks.length; i++) {
+		if (rx.test(originalChunks[i])) {
+			resultString += originalChunks[i] + '\n';
+		}
+	}
+	return resultString;
 }
 
 
-//Hover events
-function hoverize() {
-let arrayHl = [...document.getElementsByClassName('highlighted')];
 
-arrayHl.forEach(hl => {
-  hl.addEventListener('mouseover', e => {
-      e.stopPropagation(); // !!!Important!!! To apply to topmost nested node only 
-      //Set tooltip text
-      tooltipPopup.textContent = hl.getAttribute('title');
-      //Show tooltip
-      tooltipPopup.style.setProperty('left', (event.clientX) + "px");
-      tooltipPopup.style.setProperty('display','block');
-      //Calculate position to prevent overflow (must be visible first)
-      popupRight = tooltipPopup.getBoundingClientRect().right;
-      popupLeft = tooltipPopup.getBoundingClientRect().left;
-      winWidth = document.documentElement.clientWidth || document.body.clientWidth || window.innerWidth;
-      //Set position
-      tooltipPopup.style.setProperty('top', `${hl.getBoundingClientRect().top - 30}px`);
-      if (popupRight >= winWidth) {
-        tooltipPopup.style.setProperty('left', `${winWidth - (popupRight - popupLeft)}px`);
-      } else {
-        tooltipPopup.style.setProperty('left',  event.clientX + "px");
-      }
-
-
-
-  });
-  hl.addEventListener('mouseout', e => {
-      tooltipPopup.style.setProperty('display', 'none');
-
-  });
-});
+function clearAreas() {
+    srcArea.innerText = ''; tarArea.innerText = '';
 }
+
+function copyOutput() {
+    if (tarArea.innerText == '') {alert('Nothing to copy.');}
+}
+
+function saveOutput() {
+    if (tarArea.innerText == '') {alert('Nothing to download.');}
+}
+
+
 
 </script>
 </html>
