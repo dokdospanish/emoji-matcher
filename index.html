@@ -198,17 +198,17 @@ const pleaseWait = document.getElementById('pleaseWait');
 //Event: File picked
 filePicker.addEventListener('input', () => {
     //No guard clause needed, cancelling does not trigger 'input' event
-    srcArea.innerHTML = ''; tarArea.innerHTML = '';
     const selectedFiles = [...document.getElementById('filePicker').files];
 
     //Validate by extension
     let validity = 'valid';
     selectedFiles.forEach((file, i) => {
-        if (!extensions.test(file.name)) {alert(`This file is not supported:\n${file.name}\n\n\Supported extensions:\n.txt, .json, .xml, .strings`); validity = 'invalid'}
+        if (!extensions.test(file.name)) {alert(`지원하지 않은 파일:\n${file.name}\n\n\지원 파일 형식:\n.txt, .json, .xml, .strings`); filePicker.value = ''; validity = 'invalid'}
     });
 
     if (validity == 'invalid') {return}
 
+    //srcArea.innerHTML = ''; tarArea.innerHTML = '';
     clearAreas();
     //progress.style.visibility = 'visible';
     pleaseWait.style.visibility = 'visible';
@@ -231,7 +231,7 @@ filePicker.addEventListener('input', () => {
             reader.onerror = () => {alert('Something went wrong'); srcArea.innerHTML = 'Oops'; tarArea.innerHTML = 'Oops'; return;}
             // Check for Number.MAX_SAFE_INTEGER and set maxlength to prevent crashing ???
         });
-        //Show buttons
+        //Show buttons and textboxes
         setTimeout(()=>{
             [...document.getElementsByTagName('button')].forEach(b => {b.style.visibility = 'visible';});
             //progress.style.visibility = 'hidden';
@@ -240,8 +240,7 @@ filePicker.addEventListener('input', () => {
             main.style.visibility = 'visible';
             filePickerLabel.classList.remove('center');
             filePickerLabel.style.visibility = 'visible';
-            //Clear value, to allow next change/input event
-            filePicker.value = '';
+            filePicker.value = ''; //Clear value, to allow next change/input event
         },100);
     },400);
 
@@ -275,6 +274,7 @@ function clearAreas() {
     [...document.getElementsByTagName('button')].forEach(b => {b.style.visibility = 'hidden';});
     main.style.visibility = 'hidden';
     filePickerLabel.classList.add('center');
+    filePicker.value = ''; //Clear value, to allow next change/input event
 }
 
 
